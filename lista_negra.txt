@@ -1,0 +1,3 @@
+pet.exe
+virus_prueba.exe
+estafador_telegram.exe
