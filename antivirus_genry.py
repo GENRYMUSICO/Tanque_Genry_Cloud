@@ -15,14 +15,14 @@ import subprocess
 import random
 
 # --- 1. CONFIGURACIÓN DE IDENTIDAD Y NUBE ---
-TOKEN_GH = "TU_TOKEN_AQUI"  # <--- Pegue su Token de GitHub aquí
+TOKEN_GH = "TU_TOKEN_AQUI" # <--- PEGUE SU TOKEN AQUÍ PARA LOS REPORTES
 USUARIO_GH = "GENRYMUSICO"
 REPO_GH = "Tanque_Genry_Cloud"
 
 NOMBRE_APP = "Antivirus Genry V1.315 - MADE IN PERÚ"
 FONETICA_NOMBRE = "Yenry Núñez"
 
-# --- 2. BÚNKER MUSICAL (REPERTORIO ACTUALIZADO) ---
+# --- 2. BÚNKER MUSICAL ---
 PLAYLIST_GENRY = [
     "https://www.youtube.com/watch?v=HNwqRXGtvLA", # El Marciano
     "https://www.youtube.com/watch?v=cDZjjcl8Yrg", # Mix Oficial Gency
@@ -31,8 +31,7 @@ PLAYLIST_GENRY = [
     "https://www.youtube.com/watch?v=OhsEGS6ZPQE"  # Technocumbias
 ]
 
-# --- 3. FUNCIONES DE SOPORTE TÉCNICO ---
-
+# --- 3. FUNCIONES DE SOPORTE ---
 def hablar(texto):
     try:
         engine = pyttsx3.init()
@@ -42,7 +41,6 @@ def hablar(texto):
     except: pass
 
 def obtener_adn_maquina():
-    """Captura el Serial de la Placa Madre y UUID"""
     try:
         placa = subprocess.check_output("wmic baseboard get serialnumber", shell=True).decode().split('\n')[1].strip()
         uuid = subprocess.check_output("wmic csproduct get uuid", shell=True).decode().split('\n')[1].strip()
@@ -61,68 +59,37 @@ def enviar_a_la_fiscalia(detalle):
     try: requests.put(url, headers=headers, json=payload, timeout=10)
     except: pass
 
-# --- 4. LÓGICA MUSICAL Y LOGO ---
-
-def jalar_exito_aleatorio(icon=None, item=None):
-    cancion = random.choice(PLAYLIST_GENRY)
-    webbrowser.open(cancion)
-    hablar("Cambiando el paso. Escucha otro éxito del Grupo Genry.")
-
+# --- 4. LOGO "MADE IN PERÚ" ---
 def crear_icono_rayo_peru():
-    """Genera el icono con el Rayo y el sello MADE IN PERÚ"""
     img = Image.new('RGB', (64, 64), color=(0, 0, 139))
     d = ImageDraw.Draw(img)
     # Rayo Dorado
     d.polygon([(40,5), (55,28), (38,28), (50,48), (14,35), (26,35)], fill=(255, 215, 0))
-    # Sello Made in Perú
-    try:
-        fuente = ImageFont.truetype("arial.ttf", 9)
-    except:
-        fuente = ImageFont.load_default()
-    d.text((5, 50), "MADE IN PERÚ", font=fuente, fill=(255, 215, 0))
+    # Sello
+    try: fuente = ImageFont.truetype("arial.ttf", 10)
+    except: fuente = ImageFont.load_default()
+    d.text((2, 50), "MADE IN PERÚ", font=fuente, fill=(255, 215, 0))
     return img
 
-# --- 5. INTERFAZ TRAY ---
+def jalar_exito_aleatorio(icon=None, item=None):
+    webbrowser.open(random.choice(PLAYLIST_GENRY))
+    hablar("Cambiando el paso. Grupo Genry en el área.")
 
 def iniciar_tray():
     try:
-        items_menu = [
+        menu = pystray.Menu(
             pystray.MenuItem("🎵 REPRODUCIR GRUPO GENRY", lambda i, n: jalar_exito_aleatorio()),
             pystray.MenuItem("⏭️ JALAR OTRO ÉXITO (Flecha)", jalar_exito_aleatorio),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("📖 MANUAL DE CAZA", lambda i, n: hablar("Manual en construcción")),
-            pystray.Menu.SEPARATOR,
             pystray.MenuItem("❌ CERRAR TANQUE", lambda i, n: i.stop())
-        ]
-        menu = pystray.Menu(*items_menu)
+        )
         icon = pystray.Icon("Genry", crear_icono_rayo_peru(), NOMBRE_APP, menu)
         icon.run()
-    except Exception as e:
-        print(f"Error en Tray: {e}")
+    except: pass
 
-def patrulla_total():
-    while True:
-        if ctypes.windll.kernel32.IsDebuggerPresent(): 
-            enviar_a_la_fiscalia("Hacker detectado intentando Ingeniería Reversa")
-            sys.exit()
-        time.sleep(1)
-
-# --- 6. LANZAMIENTO ---
-
+# --- 5. ARRANQUE ---
 if __name__ == "__main__":
-    # Título de la consola
     if os.name == 'nt': ctypes.windll.kernel32.SetConsoleTitleW(NOMBRE_APP)
-    
-    print(f"\033[1;34m--- {NOMBRE_APP} ---\033[0m")
-    identidad = obtener_adn_maquina()
-    print(f"\033[1;32m[SISTEMA]\033[0m Identidad de Hardware: {identidad}")
-    
-    # Iniciar procesos en hilos
     threading.Thread(target=iniciar_tray, daemon=True).start()
-    threading.Thread(target=patrulla_total, daemon=True).start()
-    
-    hablar(f"Sistema {FONETICA_NOMBRE} listo. Hardware identificado. Made in Perú.")
-    
-    # Mantener vivo el programa
-    while True: 
-        time.sleep(1)
+    hablar(f"Sistema {FONETICA_NOMBRE} iniciado. Hardware identificado. Made in Perú.")
+    while True: time.sleep(1)
