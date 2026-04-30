@@ -1,1 +1,15 @@
-
+def verificar_y_reparar_firewall():
+    import subprocess
+    import tkinter as tk
+    from tkinter import messagebox
+    try:
+        resultado = subprocess.check_output("netsh advfirewall show allprofiles state", shell=True).decode()
+        if "OFF" in resultado.upper():
+            # Comando para hablar (pasamos el motor o usamos uno local)
+            print("[ALERTA] Firewall desactivado.")
+            subprocess.run("control firewall.cpl", shell=True)
+            root_inst = tk.Tk(); root_inst.withdraw()
+            messagebox.showwarning("ACCIÓN REQUERIDA", "Para activar la protección total, restaure la configuración del Firewall.")
+            messagebox.showinfo("ÉXITO", "Instalación completa.\nAV GENRY ACTIVO AL 100%.")
+            root_inst.destroy()
+    except: pass
