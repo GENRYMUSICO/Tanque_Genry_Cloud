@@ -1,18 +1,57 @@
-# --- PARCHE DE RESPALDO PARA EVITAR CRASH ---
-def confirmar_salida_premium(): 
-    """Respaldo por si la nube no carga a tiempo"""
-    sys.exit()
+def confirmar_salida_premium():
+    """Ventana de advertencia estilo Búnker para evitar cierres accidentales"""
+    import tkinter as tk
+    from tkinter import messagebox
+    import sys
+
+    root = tk.Tk()
+    root.withdraw() # Oculta la ventana principal de tk
+    
+    respuesta = messagebox.askyesno(
+        "AVISO IMPORTANTE - GRUPO GENRY", 
+        "¿Desea desactivar la protección del Antivirus Genry?\n\nSu PC quedará Vulnerable."
+    )
+    
+    if respuesta: # Si dice "SÍ, SALIR"
+        sys.exit()
+    else: # Si dice "NO, SEGUIR"
+        root.destroy()
 
 def iniciar_tray():
-    """Crea el icono en la barra de tareas"""
+    import pystray
+    from PIL import Image
+    import webbrowser
+    
     try:
+        # Carga el logo oficial descargado
         image = Image.open("LOGO AV GENRY OFICIAL.png")
-    except:
-        image = Image.new('RGB', (64, 64), color=(0, 255, 0)) # Cuadrado verde si no hay logo
+        
+        # Definición de URLs de apoyo al proyecto
+        URL_PAGO_2USD = "https://www.paypal.com" # Cambiar por tus links reales
+        URL_PAGO_20USD = "https://www.paypal.com"
 
-    menu = pystray.Menu(
-        pystray.MenuItem("Búnker Protegido", lambda: None, enabled=False),
-        pystray.MenuItem("Salir del Tanque", confirmar_salida_premium)
-    )
-    icon = pystray.Icon("AV_Genry", image, f"Sistema {FONETICA_NOMBRE}", menu)
-    icon.run()
+        menu = pystray.Menu(
+            pystray.MenuItem(f"Usuario: {FONETICA_NOMBRE}", lambda: None, enabled=False),
+            pystray.MenuItem("Búnker: Protegido", lambda: None, enabled=False),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("💳 PLAN $2 USD", lambda: webbrowser.open(URL_PAGO_2USD)),
+            pystray.MenuItem("🏆 PLAN $20 USD PREMIUM", lambda: webbrowser.open(URL_PAGO_20USD)),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("❌ SALIR DEL TANQUE", confirmar_salida_premium)
+        )
+        
+        icon = pystray.Icon("AV_Genry", image, f"AV GENRY - Made in Perú", menu)
+        icon.run()
+        
+    except Exception as e:
+        print(f"Error crítico en el tray: {e}")
+
+# Aseguramos que la clase Motor real también esté presente en el CORE
+class MotorGenryCentinela:
+    def __init__(self):
+        self.lista_negra = set()
+    def patrullar(self):
+        import time
+        while True:
+            # Aquí va tu lógica de escaneo de procesos
+            time.sleep(10)
