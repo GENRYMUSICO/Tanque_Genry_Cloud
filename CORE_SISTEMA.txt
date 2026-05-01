@@ -1,1 +1,18 @@
-
+def iniciar_tray():
+    """Crea el icono en la barra de tareas[cite: 2]"""
+    menu = pystray.Menu(
+        pystray.MenuItem("🎵 RADIO GRUPO GENRY", lambda: webbrowser.open(random.choice(["https://www.youtube.com/watch?v=HNwqRXGtvLA"]))),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem("💳 PLAN $2 USD", lambda: webbrowser.open("https://wise.com/pay/r/iT6-FjgIWxxizxQ")),
+        pystray.MenuItem("🏆 PLAN PREMIUM $20", lambda: webbrowser.open("https://wise.com/pay/r/iLwaYmSjRQKpqb4")),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem("❌ APAGAR BÚNKER", lambda icon, item: (hablar("Desactivando."), icon.stop(), os._exit(0)))
+    )
+    # Intenta cargar el logo oficial que bajamos de la nube
+    try:
+        img = Image.open(RUTA_LOGO_OFICIAL).convert("RGBA").resize((32, 32), Image.LANCZOS)
+    except:
+        img = Image.new('RGBA', (32, 32), (0, 0, 139, 255)) # Azul si no hay logo
+    
+    icon = pystray.Icon("Genry", img, title="AV GENRY ACTIVO", menu=menu)
+    icon.run()
