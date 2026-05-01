@@ -60,4 +60,4 @@ def confirmar_salida_premium(icon, item):
     tk.Button(btn_frame, text=" SÍ ", command=si, width=10, bg="#f0f0f0").pack(side="left", padx=10)
     tk.Button(btn_frame, text=" NO ", command=no, width=10, bg="#f0f0f0").pack(side="left", padx=10)
     
-    aviso.mainloop()
+    aviso.mainloop() 
