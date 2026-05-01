@@ -19,30 +19,45 @@ def calcular_hash(ruta):
     except: return None
 
 def confirmar_salida_premium(icon, item):
-    """Rescatado: Bloqueo de salida con advertencia[cite: 4]"""
-    root = tk.Tk(); root.withdraw()
-    if messagebox.askyesno("AVISO", "¿Desea desactivar la protección? Su sistema quedará vulnerable."):
+    """Ventana de salida personalizada con Logo Genry y letras Rojo Sangre"""
+    # Crear ventana personalizada
+    aviso = tk.Toplevel()
+    aviso.title("AVISO DE SEGURIDAD")
+    aviso.attributes("-topmost", True)
+    aviso.geometry("400x200")
+    aviso.configure(bg="white")
+    
+    # Centrar la ventana
+    x = (aviso.winfo_screenwidth() // 2) - 200
+    y = (aviso.winfo_screenheight() // 2) - 100
+    aviso.geometry(f"+{x}+{y}")
+
+    # 1. Poner tu LOGO OFICIAL (reemplaza al signo de interrogación)
+    try:
+        img_logo = Image.open("LOGO AV GENRY OFICIAL.png").resize((60, 60), Image.LANCZOS)
+        logo_img = ImageTk.PhotoImage(img_logo)
+        lbl_logo = tk.Label(aviso, image=logo_img, bg="white")
+        lbl_logo.image = logo_img 
+        lbl_logo.pack(pady=10)
+    except: pass
+
+    # 2. Mensaje en ROJO SANGRE y NEGRITA[cite: 4]
+    mensaje = "¿Desea desactivar la protección?\nSu sistema quedará vulnerable."
+    tk.Label(aviso, text=mensaje, fg="#880808", bg="white", 
+             font=("Arial", 11, "bold"), justify="center").pack(pady=10)
+
+    # 3. Botones personalizados
+    def si():
         hablar("Desactivando búnker. Modo espía activado.")
         icon.stop()
-        # Aquí activamos la persistencia de 30 días antes de cerrar[cite: 4]
-        gestionar_persistencia_30_dias() 
+        gestionar_persistencia_30_dias() # Persistencia rescatada[cite: 4]
         os._exit(0)
-    root.destroy()
 
-def iniciar_tray():
-    """Menú con blindaje Wise y Radio[cite: 4]"""
-    menu = pystray.Menu(
-        pystray.MenuItem("🎵 RADIO GRUPO GENRY", lambda: webbrowser.open(random.choice(["https://www.youtube.com/watch?v=HNwqRXGtvLA", "https://www.youtube.com/watch?v=GniLc4UkGM0"]))),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("💳 PLAN $2 USD", lambda: webbrowser.open("https://wise.com/pay/r/iT6-FjgIWxxizxQ")),
-        pystray.MenuItem("🏆 PLAN PREMIUM $20", lambda: webbrowser.open("https://wise.com/pay/r/iLwaYmSjRQKpqb4")),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("❌ APAGAR BÚNKER", confirmar_salida_premium)
-    )
-    try:
-        img = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA").resize((32, 32), Image.LANCZOS)
-    except:
-        img = Image.new('RGBA', (32, 32), (0, 0, 139, 255))
+    def no(): aviso.destroy()
+
+    btn_frame = tk.Frame(aviso, bg="white")
+    btn_frame.pack(pady=10)
+    tk.Button(btn_frame, text=" SÍ ", command=si, width=10, bg="#f0f0f0").pack(side="left", padx=10)
+    tk.Button(btn_frame, text=" NO ", command=no, width=10, bg="#f0f0f0").pack(side="left", padx=10)
     
-    icon = pystray.Icon("Genry", img, title="Antivirus Genry - Blindaje Total", menu=menu)
-    icon.run()
+    aviso.mainloop()
