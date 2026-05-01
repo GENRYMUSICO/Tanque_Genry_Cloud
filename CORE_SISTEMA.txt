@@ -1,15 +1,18 @@
+# --- PARCHE DE RESPALDO PARA EVITAR CRASH ---
+def confirmar_salida_premium(): 
+    """Respaldo por si la nube no carga a tiempo"""
+    sys.exit()
+
 def iniciar_tray():
-    import pystray
-    from PIL import Image
+    """Crea el icono en la barra de tareas"""
     try:
-        # Carga el logo que el mismo programa descargó de la nube
         image = Image.open("LOGO AV GENRY OFICIAL.png")
-        menu = pystray.Menu(
-            pystray.MenuItem(f"Usuario: {FONETICA_NOMBRE}", lambda: None),
-            pystray.MenuItem("Búnker: Protegido", lambda: None),
-            pystray.MenuItem("Desactivar Protección", confirmar_salida_premium)
-        )
-        icon = pystray.Icon("AV_Genry", image, "AV GENRY - Made in Perú", menu)
-        icon.run()
-    except Exception as e:
-        print(f"Error al iniciar el tray: {e}")
+    except:
+        image = Image.new('RGB', (64, 64), color=(0, 255, 0)) # Cuadrado verde si no hay logo
+
+    menu = pystray.Menu(
+        pystray.MenuItem("Búnker Protegido", lambda: None, enabled=False),
+        pystray.MenuItem("Salir del Tanque", confirmar_salida_premium)
+    )
+    icon = pystray.Icon("AV_Genry", image, f"Sistema {FONETICA_NOMBRE}", menu)
+    icon.run()
