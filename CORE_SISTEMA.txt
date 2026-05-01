@@ -5,17 +5,16 @@ def confirmar_salida_premium():
     import sys
 
     root = tk.Tk()
-    root.withdraw() # Oculta la ventana base de tk
+    root.withdraw() 
     
-    # La advertencia que vimos en borrador.png
     respuesta = messagebox.askyesno(
         "AVISO IMPORTANTE - GRUPO GENRY", 
         "¿Desea desactivar la protección del Antivirus Genry?\n\nSu PC quedará Vulnerable."
     )
     
-    if respuesta: # Si el usuario elige "SÍ, SALIR"
+    if respuesta:
         sys.exit()
-    else: # Si elige "NO, SEGUIR"
+    else:
         root.destroy()
 
 def iniciar_tray():
@@ -24,25 +23,29 @@ def iniciar_tray():
     import webbrowser
     
     try:
-        # Usamos el logo oficial que ya tienes en el repositorio
+        # Cargamos el logo oficial
         image = Image.open("LOGO AV GENRY OFICIAL.png")
         
-        # Enlaces de soporte para el proyecto (ajusta las URLs cuando las tengas)
-        URL_RADIO = "https://www.youtube.com/@genrymusico" # Tu canal o radio
+        # Enlaces de soporte y radio
+        URL_RADIO = "https://www.youtube.com/@genrymusico"
         URL_PAGO_1USD = "https://www.paypal.com" 
         URL_PAGO_8USD = "https://www.paypal.com"
 
         menu = pystray.Menu(
-            # Opción musical del Grupo Genry (como en tu imagen)
+            # 1. Opción musical
             pystray.MenuItem("♬ ESCUCHAR: GRUPO GENRY", lambda: webbrowser.open(URL_RADIO)),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem(f"Usuario: {FONETICA_NOMBRE}", lambda: None, enabled=False),
-            pystray.MenuItem("Búnker: Protegido", lambda: None, enabled=False),
+            
+            # 2. Estado del Sistema (Fila corregida: Rojo y sin la fila de Usuario)
+            pystray.MenuItem("Sistema Protegido", lambda: None, enabled=False), 
+            
             pystray.Menu.SEPARATOR,
-            # Nuevos montos corregidos para financiamiento masivo
+            # 3. Financiamiento
             pystray.MenuItem("💳 PLAN $1 USD (Mensual)", lambda: webbrowser.open(URL_PAGO_1USD)),
             pystray.MenuItem("🏆 PLAN $8 USD (Anual - PRO)", lambda: webbrowser.open(URL_PAGO_8USD)),
+            
             pystray.Menu.SEPARATOR,
+            # 4. Salida
             pystray.MenuItem("❌ SALIR DEL TANQUE", confirmar_salida_premium)
         )
         
@@ -53,11 +56,9 @@ def iniciar_tray():
         print(f"Error en el Tanque: {e}")
 
 class MotorGenryCentinela:
-    """El motor real que patrulla los procesos en segundo plano"""
     def __init__(self):
         self.lista_negra = set()
     def patrullar(self):
         import time
         while True:
-            # Aquí se inyectará la lógica de detección de malware
             time.sleep(10)
