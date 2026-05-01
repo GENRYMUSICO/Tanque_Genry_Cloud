@@ -1,20 +1,21 @@
 def confirmar_salida_premium():
-    """Ventana de advertencia estilo Búnker para evitar cierres accidentales"""
+    """Ventana de advertencia estilo Búnker con el escudo de seguridad"""
     import tkinter as tk
     from tkinter import messagebox
     import sys
 
     root = tk.Tk()
-    root.withdraw() # Oculta la ventana principal de tk
+    root.withdraw() # Oculta la ventana base de tk
     
+    # La advertencia que vimos en borrador.png
     respuesta = messagebox.askyesno(
         "AVISO IMPORTANTE - GRUPO GENRY", 
         "¿Desea desactivar la protección del Antivirus Genry?\n\nSu PC quedará Vulnerable."
     )
     
-    if respuesta: # Si dice "SÍ, SALIR"
+    if respuesta: # Si el usuario elige "SÍ, SALIR"
         sys.exit()
-    else: # Si dice "NO, SEGUIR"
+    else: # Si elige "NO, SEGUIR"
         root.destroy()
 
 def iniciar_tray():
@@ -23,35 +24,40 @@ def iniciar_tray():
     import webbrowser
     
     try:
-        # Carga el logo oficial descargado
+        # Usamos el logo oficial que ya tienes en el repositorio
         image = Image.open("LOGO AV GENRY OFICIAL.png")
         
-        # Definición de URLs de apoyo al proyecto
-        URL_PAGO_2USD = "https://www.paypal.com" # Cambiar por tus links reales
-        URL_PAGO_20USD = "https://www.paypal.com"
+        # Enlaces de soporte para el proyecto (ajusta las URLs cuando las tengas)
+        URL_RADIO = "https://www.youtube.com/@genrymusico" # Tu canal o radio
+        URL_PAGO_1USD = "https://www.paypal.com" 
+        URL_PAGO_8USD = "https://www.paypal.com"
 
         menu = pystray.Menu(
+            # Opción musical del Grupo Genry (como en tu imagen)
+            pystray.MenuItem("♬ ESCUCHAR: GRUPO GENRY", lambda: webbrowser.open(URL_RADIO)),
+            pystray.Menu.SEPARATOR,
             pystray.MenuItem(f"Usuario: {FONETICA_NOMBRE}", lambda: None, enabled=False),
             pystray.MenuItem("Búnker: Protegido", lambda: None, enabled=False),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("💳 PLAN $2 USD", lambda: webbrowser.open(URL_PAGO_2USD)),
-            pystray.MenuItem("🏆 PLAN $20 USD PREMIUM", lambda: webbrowser.open(URL_PAGO_20USD)),
+            # Nuevos montos corregidos para financiamiento masivo
+            pystray.MenuItem("💳 PLAN $1 USD (Mensual)", lambda: webbrowser.open(URL_PAGO_1USD)),
+            pystray.MenuItem("🏆 PLAN $8 USD (Anual - PRO)", lambda: webbrowser.open(URL_PAGO_8USD)),
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("❌ SALIR DEL TANQUE", confirmar_salida_premium)
         )
         
-        icon = pystray.Icon("AV_Genry", image, f"AV GENRY - Made in Perú", menu)
+        icon = pystray.Icon("AV_Genry", image, f"AV GENRY - Sistema Definitivo", menu)
         icon.run()
         
     except Exception as e:
-        print(f"Error crítico en el tray: {e}")
+        print(f"Error en el Tanque: {e}")
 
-# Aseguramos que la clase Motor real también esté presente en el CORE
 class MotorGenryCentinela:
+    """El motor real que patrulla los procesos en segundo plano"""
     def __init__(self):
         self.lista_negra = set()
     def patrullar(self):
         import time
         while True:
-            # Aquí va tu lógica de escaneo de procesos
+            # Aquí se inyectará la lógica de detección de malware
             time.sleep(10)
