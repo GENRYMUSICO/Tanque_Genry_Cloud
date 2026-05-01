@@ -1,40 +1,36 @@
 def confirmar_salida_premium(icon, item):
-    """Corregido: Si dice NO, el icono NO desaparece"""
-    # Usamos Toplevel directamente sobre el icono para no romper el mainloop[cite: 6]
+    """Protocolo de cierre: Mata al guardián para poder salir"""
+    import tkinter as tk
+    from PIL import Image, ImageTk
+    import subprocess
+    import os
+
     aviso = tk.Toplevel()
-    aviso.title("AVISO DE SEGURIDAD")
+    aviso.title("AVISO DE SEGURIDAD - BÚNKER CAHUIDE")
     aviso.attributes("-topmost", True)
     aviso.geometry("400x220")
     aviso.configure(bg="white")
     
-    # Centrar[cite: 6]
+    # Centrado perfecto
     x = (aviso.winfo_screenwidth() // 2) - 200
     y = (aviso.winfo_screenheight() // 2) - 110
     aviso.geometry(f"+{x}+{y}")
 
-    # Logo y Mensaje (Mantener igual que antes)[cite: 6]
-    try:
-        img_logo = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA").resize((80, 80), Image.LANCZOS)
-        logo_img = ImageTk.PhotoImage(img_logo)
-        lbl_logo = tk.Label(aviso, image=logo_img, bg="white"); lbl_logo.image = logo_img; lbl_logo.pack(pady=10)
-    except: pass
-
     tk.Label(aviso, text="¿Desea desactivar la protección?\nSu sistema quedará vulnerable.", 
-             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=10)
+             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=20)
 
-    # --- EL ARREGLO ESTÁ AQUÍ ---[cite: 6]
     def si():
-        hablar("Desactivando búnker.")
-        # IMPORTANTE: Detenemos al guardián para que nos deje salir[cite: 1, 4]
-        subprocess.run("taskkill /f /im python.exe /fi \"windowtitle eq guardian.py*\"", shell=True) 
+        # PASO CRUCIAL: Detenemos al guardián para que nos deje salir[cite: 1, 2]
+        # Buscamos y matamos cualquier proceso que sea 'guardian.py'
+        subprocess.run('taskkill /f /im python.exe /fi "windowtitle eq guardian.py*"', shell=True) 
         icon.stop()
-        os._exit(0)
+        os._exit(0) # Salida total sin procesos zombis[cite: 2]
 
     def no(): 
-        aviso.destroy() # Solo cerramos la ventanita, NO el programa ni el icono[cite: 6]
+        aviso.destroy() 
 
     btn_frame = tk.Frame(aviso, bg="white"); btn_frame.pack(pady=10)
-    tk.Button(btn_frame, text=" SÍ ", command=si, width=10).pack(side="left", padx=10)
-    tk.Button(btn_frame, text=" NO ", command=no, width=10).pack(side="left", padx=10)
+    tk.Button(btn_frame, text=" SÍ, SALIR ", command=si, width=12, bg="#cc0000", fg="white").pack(side="left", padx=10)
+    tk.Button(btn_frame, text=" NO, VOLVER ", command=no, width=12).pack(side="left", padx=10)
     
     aviso.mainloop()
