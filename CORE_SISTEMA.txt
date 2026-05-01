@@ -1,92 +1,50 @@
-# --- 1. MÓDULOS DE VOZ Y SEGURIDAD ---
-def hablar(texto):
-    """Módulo de voz oficial con velocidad 165"""
-    try:
-        engine = pyttsx3.init()
-        engine.setProperty('rate', 165)
-        engine.say(texto)
-        engine.runAndWait()
-    except: pass
-
-def calcular_hash(ruta):
-    """Motor de detección de sapazos[cite: 6]"""
-    h = hashlib.md5()
-    try:
-        with open(ruta, 'rb') as f:
-            for chunk in iter(lambda: f.read(4096), b""): h.update(chunk)
-        return h.hexdigest()
-    except: return None
-
-# --- 2. MOTOR DE PATRULLAJE ---
-class MotorGenryCentinela:
-    """Clase rescatada para patrullar en segundo plano[cite: 5]"""
-    def __init__(self):
-        self.lista_negra = set()
-        if os.path.exists("hashes_virus.txt"):
-            with open("hashes_virus.txt", "r") as f:
-                self.lista_negra = {l.strip() for l in f if l.strip()}
-
-    def patrullar(self):
-        while True:
-            for p in psutil.process_iter(['name', 'exe']):
-                try:
-                    if p.info['exe'] and calcular_hash(p.info['exe']) in self.lista_negra:
-                        p.terminate()
-                except: continue
-            time.sleep(5)
-
-# --- 3. INTERFAZ Y SALIDA PERSONALIZADA ---
 def confirmar_salida_premium(icon, item):
-    """Ventana personalizada: Logo Genry y Rojo Sangre[cite: 6]"""
-    aviso = tk.Toplevel()
+    """Ventana de salida sin cuadros extra y logo con transparencia forzada"""
+    # 1. Crear ventana oculta base para evitar el cuadro blanco extra
+    root = tk.Tk()
+    root.withdraw() 
+
+    # 2. Crear la ventana real de aviso
+    aviso = tk.Toplevel(root)
     aviso.title("AVISO DE SEGURIDAD")
     aviso.attributes("-topmost", True)
     aviso.geometry("400x220")
     aviso.configure(bg="white")
     
+    # Centrar
     x = (aviso.winfo_screenwidth() // 2) - 200
     y = (aviso.winfo_screenheight() // 2) - 110
     aviso.geometry(f"+{x}+{y}")
 
+    # 3. Logo Oficial: Forzamos el modo RGBA para quitar el fondo si el PNG es transparente[cite: 4, 6]
     try:
-        img_logo = Image.open("LOGO AV GENRY OFICIAL.png").resize((60, 60), Image.LANCZOS)
+        img_logo = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA")
+        img_logo = img_logo.resize((80, 80), Image.LANCZOS)
         logo_img = ImageTk.PhotoImage(img_logo)
         lbl_logo = tk.Label(aviso, image=logo_img, bg="white")
         lbl_logo.image = logo_img 
         lbl_logo.pack(pady=10)
     except: pass
 
+    # 4. Mensaje Rojo Sangre en Negrita[cite: 4, 6]
     mensaje = "¿Desea desactivar la protección?\nSu sistema quedará vulnerable."
     tk.Label(aviso, text=mensaje, fg="#880808", bg="white", 
              font=("Arial", 11, "bold"), justify="center").pack(pady=10)
 
+    # 5. Botones[cite: 6]
     def si():
-        hablar("Desactivando búnker. Modo espía activado.")
+        hablar("Desactivando búnker.")
         icon.stop()
+        root.destroy()
         os._exit(0)
 
-    def no(): aviso.destroy()
+    def no(): 
+        root.destroy()
 
     btn_frame = tk.Frame(aviso, bg="white")
     btn_frame.pack(pady=10)
-    tk.Button(btn_frame, text=" SÍ ", command=si, width=10).pack(side="left", padx=10)
-    tk.Button(btn_frame, text=" NO ", command=no, width=10).pack(side="left", padx=10)
-    aviso.mainloop()
-
-def iniciar_tray():
-    """Menú rescatado con links de cobro y radio[cite: 5]"""
-    menu = pystray.Menu(
-        pystray.MenuItem("🎵 RADIO GRUPO GENRY", lambda: webbrowser.open("https://www.youtube.com/watch?v=HNwqRXGtvLA")),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("💳 PLAN $2 USD", lambda: webbrowser.open("https://wise.com/pay/r/iT6-FjgIWxxizxQ")),
-        pystray.MenuItem("🏆 PLAN PREMIUM $20", lambda: webbrowser.open("https://wise.com/pay/r/iLwaYmSjRQKpqb4")),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem("❌ APAGAR BÚNKER", confirmar_salida_premium)
-    )
-    try:
-        img = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA").resize((32, 32), Image.LANCZOS)
-    except:
-        img = Image.new('RGBA', (32, 32), (0, 0, 139, 255))
+    tk.Button(btn_frame, text=" SÍ ", command=si, width=10, relief="flat", bg="#E0E0E0").pack(side="left", padx=10)
+    tk.Button(btn_frame, text=" NO ", command=no, width=10, relief="flat", bg="#E0E0E0").pack(side="left", padx=10)
     
-    icon = pystray.Icon("Genry", img, title="AV GENRY ACTIVO", menu=menu)
-    icon.run()
+    aviso.protocol("WM_DELETE_WINDOW", no)
+    aviso.mainloop()
