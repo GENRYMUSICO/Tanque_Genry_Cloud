@@ -1,50 +1,40 @@
 def confirmar_salida_premium(icon, item):
-    """Ventana de salida sin cuadros extra y logo con transparencia forzada"""
-    # 1. Crear ventana oculta base para evitar el cuadro blanco extra
-    root = tk.Tk()
-    root.withdraw() 
-
-    # 2. Crear la ventana real de aviso
-    aviso = tk.Toplevel(root)
+    """Corregido: Si dice NO, el icono NO desaparece"""
+    # Usamos Toplevel directamente sobre el icono para no romper el mainloop[cite: 6]
+    aviso = tk.Toplevel()
     aviso.title("AVISO DE SEGURIDAD")
     aviso.attributes("-topmost", True)
     aviso.geometry("400x220")
     aviso.configure(bg="white")
     
-    # Centrar
+    # Centrar[cite: 6]
     x = (aviso.winfo_screenwidth() // 2) - 200
     y = (aviso.winfo_screenheight() // 2) - 110
     aviso.geometry(f"+{x}+{y}")
 
-    # 3. Logo Oficial: Forzamos el modo RGBA para quitar el fondo si el PNG es transparente[cite: 4, 6]
+    # Logo y Mensaje (Mantener igual que antes)[cite: 6]
     try:
-        img_logo = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA")
-        img_logo = img_logo.resize((80, 80), Image.LANCZOS)
+        img_logo = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA").resize((80, 80), Image.LANCZOS)
         logo_img = ImageTk.PhotoImage(img_logo)
-        lbl_logo = tk.Label(aviso, image=logo_img, bg="white")
-        lbl_logo.image = logo_img 
-        lbl_logo.pack(pady=10)
+        lbl_logo = tk.Label(aviso, image=logo_img, bg="white"); lbl_logo.image = logo_img; lbl_logo.pack(pady=10)
     except: pass
 
-    # 4. Mensaje Rojo Sangre en Negrita[cite: 4, 6]
-    mensaje = "¿Desea desactivar la protección?\nSu sistema quedará vulnerable."
-    tk.Label(aviso, text=mensaje, fg="#880808", bg="white", 
-             font=("Arial", 11, "bold"), justify="center").pack(pady=10)
+    tk.Label(aviso, text="¿Desea desactivar la protección?\nSu sistema quedará vulnerable.", 
+             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=10)
 
-    # 5. Botones[cite: 6]
+    # --- EL ARREGLO ESTÁ AQUÍ ---[cite: 6]
     def si():
         hablar("Desactivando búnker.")
+        # IMPORTANTE: Detenemos al guardián para que nos deje salir[cite: 1, 4]
+        subprocess.run("taskkill /f /im python.exe /fi \"windowtitle eq guardian.py*\"", shell=True) 
         icon.stop()
-        root.destroy()
         os._exit(0)
 
     def no(): 
-        root.destroy()
+        aviso.destroy() # Solo cerramos la ventanita, NO el programa ni el icono[cite: 6]
 
-    btn_frame = tk.Frame(aviso, bg="white")
-    btn_frame.pack(pady=10)
-    tk.Button(btn_frame, text=" SÍ ", command=si, width=10, relief="flat", bg="#E0E0E0").pack(side="left", padx=10)
-    tk.Button(btn_frame, text=" NO ", command=no, width=10, relief="flat", bg="#E0E0E0").pack(side="left", padx=10)
+    btn_frame = tk.Frame(aviso, bg="white"); btn_frame.pack(pady=10)
+    tk.Button(btn_frame, text=" SÍ ", command=si, width=10).pack(side="left", padx=10)
+    tk.Button(btn_frame, text=" NO ", command=no, width=10).pack(side="left", padx=10)
     
-    aviso.protocol("WM_DELETE_WINDOW", no)
     aviso.mainloop()
