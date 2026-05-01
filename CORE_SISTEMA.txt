@@ -7,7 +7,7 @@ from PIL import Image, ImageTk
 # --- CONFIGURACIÓN DE ACCESO NUBE ---
 USUARIO_GH = "GENRYMUSICO"
 REPO_GH = "Tanque_Genry_Cloud"
-TOKEN_GH = "TU_TOKEN_AQUÍ" 
+TOKEN_GH = "TU_TOKEN_AQUÍ" # Socio, pon tu token activo aquí
 
 # --- 1. INTELIGENCIA Y ADN (EL CEREBRO) ---
 
@@ -19,7 +19,7 @@ def obtener_adn_maquina():
     except: return "DESCONOCIDO"
 
 def actualizar_archivo_nube(nombre_archivo, nuevo_contenido):
-    """Reporta evidencia al búnker de GitHub[cite: 7, 8]"""
+    """Reporta evidencia al búnker de GitHub[cite: 1, 2]"""
     try:
         url = f"https://api.github.com/repos/{USUARIO_GH}/{REPO_GH}/contents/{nombre_archivo}"
         headers = {"Authorization": f"token {TOKEN_GH}"}
@@ -31,7 +31,7 @@ def actualizar_archivo_nube(nombre_archivo, nuevo_contenido):
     except: pass
 
 def es_comportamiento_sospechoso(proceso):
-    """Detecta estafadores por acciones (Heurística)[cite: 7, 8]"""
+    """Detecta estafadores por acciones (Heurística)[cite: 1, 2]"""
     try:
         nombres_estafa = ["anydesk", "teamviewer", "rustdesk", "supremo"]
         if any(n in proceso.info['name'].lower() for n in nombres_estafa):
@@ -41,7 +41,7 @@ def es_comportamiento_sospechoso(proceso):
         return False, ""
     except: return False, ""
 
-# --- 2. PRESENTACIÓN Y VOZ (MEJORAS DEL INSTALADOR) ---
+# --- 2. PRESENTACIÓN Y VOZ ---
 
 def presentacion_genry():
     """Lanza el logo de presentación por 5 segundos con voz"""
@@ -50,7 +50,6 @@ def presentacion_genry():
         engine.say("Sistema Yenry Núñez en línea. Búnker de protección activado.")
         engine.runAndWait()
 
-    # Hilo para que la voz no bloquee la imagen
     threading.Thread(target=hablar_intro, daemon=True).start()
 
     root = tk.Tk()
@@ -77,7 +76,7 @@ def presentacion_genry():
 # --- 3. PERSISTENCIA Y VIGILANCIA ---
 
 def gestionar_persistencia_30_dias():
-    """Anclaje indetectable y registro de misión[cite: 7, 8]"""
+    """Anclaje indetectable y registro de misión[cite: 1, 2]"""
     try:
         ruta_script = os.path.abspath(sys.argv[0])
         llave = r"Software\Microsoft\Windows\CurrentVersion\Run"
@@ -92,34 +91,48 @@ def gestionar_persistencia_30_dias():
     except: pass
 
 def vigilancia_cruzada():
-    """Anti-Kill: Evita que cierren el sistema[cite: 7, 8]"""
+    """Anti-Kill: Evita que cierren el sistema[cite: 1, 2]"""
     while True:
         guardian_vivo = any("guardian.py" in p.info['name'] for p in psutil.process_iter(['name']))
         if not guardian_vivo and os.path.exists("guardian.py"):
             subprocess.Popen([sys.executable, "guardian.py"], creationflags=subprocess.CREATE_NO_WINDOW)
         time.sleep(2)
 
-# --- 4. INTERFAZ Y SALIDA BLINDADA ---
+# --- 4. INTERFAZ Y SALIDA BLINDADA (CON LOGO) ---
 
 def confirmar_salida_premium(icon, item=None):
-    """Cierre total: Mata al guardián para permitir la salida"""
+    """Cierre total: Menú con LOGO profesional y Anti-Guardián[cite: 3]"""
     root = tk.Tk()
     root.withdraw()
     aviso = tk.Toplevel(root)
     aviso.title("AVISO DE SEGURIDAD - SISTEMA GENRY")
     aviso.attributes("-topmost", True)
-    aviso.geometry("400x220")
+    aviso.geometry("400x280") # Aumentamos altura para el logo[cite: 3]
     aviso.configure(bg="white")
     
+    # Centrado en pantalla[cite: 3]
     x = (aviso.winfo_screenwidth() // 2) - 200
-    y = (aviso.winfo_screenheight() // 2) - 110
+    y = (aviso.winfo_screenheight() // 2) - 140
     aviso.geometry(f"+{x}+{y}")
 
+    # --- INCORPORACIÓN DEL LOGO (ZONA FLECHA ROJA)[cite: 3] ---
+    try:
+        # Cargamos y redimensionamos el logo del tray para el menú
+        img_logo = Image.open("LOGO AV GENRY OFICIAL.png")
+        img_logo = img_logo.resize((80, 80), Image.Resampling.LANCZOS) # Tamaño elegante
+        aviso.photo_logo = ImageTk.PhotoImage(img_logo)
+        
+        # Widget del logo centrado
+        tk.Label(aviso, image=aviso.photo_logo, bg="white").pack(pady=(20, 10))
+    except Exception as e:
+        print(f"Error cargando logo en menú: {e}")
+
+    # Texto de advertencia (ahora debajo del logo)[cite: 3]
     tk.Label(aviso, text="¿Desea desactivar la protección?\nSu sistema quedará vulnerable.", 
-             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=20)
+             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=10)
 
     def si():
-        # Mata el guardián para que no reinicie el sistema al salir
+        # Mata el guardián para permitir la salida limpia[cite: 3]
         subprocess.run('taskkill /f /im python.exe /fi "windowtitle eq guardian.py*"', shell=True) 
         engine = pyttsx3.init()
         engine.say("Desactivando búnker. Sistema vulnerable.")
@@ -131,13 +144,15 @@ def confirmar_salida_premium(icon, item=None):
         aviso.destroy()
         root.destroy()
 
-    btn_frame = tk.Frame(aviso, bg="white"); btn_frame.pack(pady=10)
-    tk.Button(btn_frame, text=" SÍ, SALIR ", command=si, width=12, bg="#cc0000", fg="white").pack(side="left", padx=10)
-    tk.Button(btn_frame, text=" NO, VOLVER ", command=no, width=12).pack(side="left", padx=10)
+    # Botones de acción[cite: 3]
+    btn_frame = tk.Frame(aviso, bg="white"); btn_frame.pack(pady=20)
+    tk.Button(btn_frame, text=" SÍ, SALIR ", command=si, width=12, bg="#cc0000", fg="white", font=("Arial", 9, "bold")).pack(side="left", padx=15)
+    tk.Button(btn_frame, text=" NO, VOLVER ", command=no, width=12, font=("Arial", 9)).pack(side="left", padx=15)
+    
     aviso.mainloop()
 
 def iniciar_tray():
-    """Menú unificado con acceso a Radio y Planes Wise[cite: 7, 8]"""
+    """Menú unificado con acceso a Radio y Planes Wise[cite: 1, 2]"""
     try:
         image = Image.open("LOGO AV GENRY OFICIAL.png")
         URL_RADIO = "https://www.youtube.com/@genrymusico"
@@ -163,7 +178,7 @@ def iniciar_tray():
 class MotorGenryCentinela:
     def __init__(self):
         self.lista_negra = []
-        # Carga masiva de firmas 452-465[cite: 8]
+        # Carga masiva de firmas locales[cite: 2]
         for i in range(452, 466):
             f_nombre = f"zVirusShare_00{i}.txt"
             if os.path.exists(f_nombre):
@@ -171,7 +186,7 @@ class MotorGenryCentinela:
                     self.lista_negra.extend([l.strip() for l in f if l.strip()])
 
     def patrullar(self):
-        """Escaneo Híbrido: Hashes + Heurística[cite: 7, 8]"""
+        """Escaneo Híbrido: Hashes + Heurística[cite: 1, 2]"""
         while True:
             for p in psutil.process_iter(['name', 'exe']):
                 try:
@@ -200,10 +215,10 @@ class MotorGenryCentinela:
 
 # --- EJECUCIÓN FINAL ---
 if __name__ == "__main__":
-    # 1. Pantalla de presentación y Voz (Mejoras del Instalador)
+    # 1. Presentación y Voz
     presentacion_genry()
     
-    # 2. Inicio de motores
+    # 2. Inicio de motores avanzados
     motor = MotorGenryCentinela()
     threading.Thread(target=motor.patrullar, daemon=True).start()
     threading.Thread(target=vigilancia_cruzada, daemon=True).start()
