@@ -1,18 +1,48 @@
+# --- FUNCIONES RESCATADAS PARA LA NUBE ---
+
+def hablar(texto):
+    """Módulo de voz con velocidad optimizada"""
+    try:
+        engine = pyttsx3.init()
+        engine.setProperty('rate', 165)
+        engine.say(texto)
+        engine.runAndWait()
+    except: pass
+
+def calcular_hash(ruta):
+    """Motor de detección de sapazos"""
+    h = hashlib.md5()
+    try:
+        with open(ruta, 'rb') as f:
+            for chunk in iter(lambda: f.read(4096), b""): h.update(chunk)
+        return h.hexdigest()
+    except: return None
+
+def confirmar_salida_premium(icon, item):
+    """Rescatado: Bloqueo de salida con advertencia[cite: 4]"""
+    root = tk.Tk(); root.withdraw()
+    if messagebox.askyesno("AVISO", "¿Desea desactivar la protección? Su sistema quedará vulnerable."):
+        hablar("Desactivando búnker. Modo espía activado.")
+        icon.stop()
+        # Aquí activamos la persistencia de 30 días antes de cerrar[cite: 4]
+        gestionar_persistencia_30_dias() 
+        os._exit(0)
+    root.destroy()
+
 def iniciar_tray():
-    """Crea el icono en la barra de tareas[cite: 2]"""
+    """Menú con blindaje Wise y Radio[cite: 4]"""
     menu = pystray.Menu(
-        pystray.MenuItem("🎵 RADIO GRUPO GENRY", lambda: webbrowser.open(random.choice(["https://www.youtube.com/watch?v=HNwqRXGtvLA"]))),
+        pystray.MenuItem("🎵 RADIO GRUPO GENRY", lambda: webbrowser.open(random.choice(["https://www.youtube.com/watch?v=HNwqRXGtvLA", "https://www.youtube.com/watch?v=GniLc4UkGM0"]))),
         pystray.Menu.SEPARATOR,
         pystray.MenuItem("💳 PLAN $2 USD", lambda: webbrowser.open("https://wise.com/pay/r/iT6-FjgIWxxizxQ")),
         pystray.MenuItem("🏆 PLAN PREMIUM $20", lambda: webbrowser.open("https://wise.com/pay/r/iLwaYmSjRQKpqb4")),
         pystray.Menu.SEPARATOR,
-        pystray.MenuItem("❌ APAGAR BÚNKER", lambda icon, item: (hablar("Desactivando."), icon.stop(), os._exit(0)))
+        pystray.MenuItem("❌ APAGAR BÚNKER", confirmar_salida_premium)
     )
-    # Intenta cargar el logo oficial que bajamos de la nube
     try:
-        img = Image.open(RUTA_LOGO_OFICIAL).convert("RGBA").resize((32, 32), Image.LANCZOS)
+        img = Image.open("LOGO AV GENRY OFICIAL.png").convert("RGBA").resize((32, 32), Image.LANCZOS)
     except:
-        img = Image.new('RGBA', (32, 32), (0, 0, 139, 255)) # Azul si no hay logo
+        img = Image.new('RGBA', (32, 32), (0, 0, 139, 255))
     
-    icon = pystray.Icon("Genry", img, title="AV GENRY ACTIVO", menu=menu)
+    icon = pystray.Icon("Genry", img, title="Antivirus Genry - Blindaje Total", menu=menu)
     icon.run()
