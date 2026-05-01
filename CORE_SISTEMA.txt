@@ -1,36 +1,15 @@
-def confirmar_salida_premium(icon, item):
-    """Protocolo de cierre: Mata al guardián para poder salir"""
-    import tkinter as tk
-    from PIL import Image, ImageTk
-    import subprocess
-    import os
-
-    aviso = tk.Toplevel()
-    aviso.title("AVISO DE SEGURIDAD - BÚNKER CAHUIDE")
-    aviso.attributes("-topmost", True)
-    aviso.geometry("400x220")
-    aviso.configure(bg="white")
-    
-    # Centrado perfecto
-    x = (aviso.winfo_screenwidth() // 2) - 200
-    y = (aviso.winfo_screenheight() // 2) - 110
-    aviso.geometry(f"+{x}+{y}")
-
-    tk.Label(aviso, text="¿Desea desactivar la protección?\nSu sistema quedará vulnerable.", 
-             fg="#880808", bg="white", font=("Arial", 11, "bold")).pack(pady=20)
-
-    def si():
-        # PASO CRUCIAL: Detenemos al guardián para que nos deje salir[cite: 1, 2]
-        # Buscamos y matamos cualquier proceso que sea 'guardian.py'
-        subprocess.run('taskkill /f /im python.exe /fi "windowtitle eq guardian.py*"', shell=True) 
-        icon.stop()
-        os._exit(0) # Salida total sin procesos zombis[cite: 2]
-
-    def no(): 
-        aviso.destroy() 
-
-    btn_frame = tk.Frame(aviso, bg="white"); btn_frame.pack(pady=10)
-    tk.Button(btn_frame, text=" SÍ, SALIR ", command=si, width=12, bg="#cc0000", fg="white").pack(side="left", padx=10)
-    tk.Button(btn_frame, text=" NO, VOLVER ", command=no, width=12).pack(side="left", padx=10)
-    
-    aviso.mainloop()
+def iniciar_tray():
+    import pystray
+    from PIL import Image
+    try:
+        # Carga el logo que el mismo programa descargó de la nube
+        image = Image.open("LOGO AV GENRY OFICIAL.png")
+        menu = pystray.Menu(
+            pystray.MenuItem(f"Usuario: {FONETICA_NOMBRE}", lambda: None),
+            pystray.MenuItem("Búnker: Protegido", lambda: None),
+            pystray.MenuItem("Desactivar Protección", confirmar_salida_premium)
+        )
+        icon = pystray.Icon("AV_Genry", image, "AV GENRY - Made in Perú", menu)
+        icon.run()
+    except Exception as e:
+        print(f"Error al iniciar el tray: {e}")
